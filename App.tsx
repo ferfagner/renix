@@ -16,6 +16,8 @@ import { Home } from './src/screens/Home';
 import {ThemeProvider} from 'styled-components'
 import theme from './src/styles/theme';
 import { CarDetail } from './src/screens/CarDetail';
+import { Scheuling } from './src/screens/Scheduling';
+import { SchedulingDetail } from './src/screens/SchedulingDetail';
 
 
 export default function App() {
@@ -34,7 +36,7 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
-    <CarDetail/>
+    <SchedulingDetail/>
     </ThemeProvider>
   );
 }
