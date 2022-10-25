@@ -1,6 +1,7 @@
 import react from 'react';
+import { RectButtonProps } from 'react-native-gesture-handler';
 import Gasoline from '../../assets/gasoline.svg'
-
+import { CarDTO } from '../../dtos/carDTO';
 
 import {
   Container,
@@ -15,27 +16,17 @@ import {
   CarImage
 } from './styles'
 
-interface CarData {
-    brand: string,
-    name: string,
-    rent:{
-        period: string,
-        price: string,
-        },
-    type: string,
-    thumbnail: string
 
+
+interface Props extends RectButtonProps{
+    data: CarDTO
 }
 
-interface Props{
-    data: CarData
-}
-
-export function Car({data}: Props){
+export function Car({data, ...rest}: Props){
 
  return(
 
- <Container>
+ <Container {...rest}>
     <Details>
         <Brand>{data.brand}</Brand>
         <Name>{data.name}</Name>

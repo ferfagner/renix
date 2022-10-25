@@ -11,6 +11,8 @@ import ExchangeSvg from '../../assets/exchange.svg'
 import PeopleSvg from '../../assets/people.svg'
 import { useTheme } from 'styled-components';
 import {Button} from '../../components/Button';
+import { useNavigation, ParamListBase, NavigationProp } from '@react-navigation/native';
+
 
 
 import {
@@ -42,13 +44,21 @@ import {
 import { RFValue } from 'react-native-responsive-fontsize';
 
 export function SchedulingDetail(){
+  const navigation = useNavigation<NavigationProp<ParamListBase>>()
+
+    function handleSchedullingConfirm(){
+        navigation.navigate('SchedulingComplete')
+    }
+    function handleBack(){
+      navigation.navigate('Home')
+    }
   const theme = useTheme()
  return(
 
  <Container>
     <Header>
       <BackButon 
-      onPress={() => {}}
+      onPress={handleBack}
      
       />
        </Header>
@@ -115,7 +125,9 @@ export function SchedulingDetail(){
       </Content>
       <Footer>
       <Button 
-      title="Confirmar"
+      title="Alugar agora!"
+      color={theme.colors.success}
+      onPress={handleSchedullingConfirm}
       />
       </Footer>
    

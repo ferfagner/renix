@@ -18,8 +18,18 @@ import {
 import { StatusBar } from 'react-native';
 import { Button } from '../../components/Button';
 import { Calendar } from '../../components/Calendar';
+import { useNavigation, ParamListBase, NavigationProp } from '@react-navigation/native';
 
 export function Scheuling(){
+
+  const navigation = useNavigation<NavigationProp<ParamListBase>>()
+
+    function handleSchedullingDetail(){
+        navigation.navigate('SchedulingDetail')
+    }
+
+  
+  
 
  return(
 
@@ -56,6 +66,7 @@ export function Scheuling(){
   <Footer>
   <Button 
   title='Confirmar'
+  onPress={handleSchedullingDetail}
   />
   </Footer>
  </Container>
