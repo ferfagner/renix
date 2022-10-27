@@ -51,7 +51,6 @@ export function Home(){
            }
         }
 
-        console.log(cars)
 
         fatchCars();
     })

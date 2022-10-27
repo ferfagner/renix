@@ -5,12 +5,7 @@ import { Slider } from '../../components/Slider';
 
 
 
-import SpeedSvg from '../../assets/speed.svg'
-import AcelerationSvg from '../../assets/acceleration.svg'
-import ForceSvg from '../../assets/force.svg'
-import GasolineSvg from '../../assets/gasoline.svg'
-import ExchangeSvg from '../../assets/exchange.svg'
-import PeopleSvg from '../../assets/people.svg'
+import { getAcessoryIcon } from '../../utils/getAcessoryIcon';
 
 import {Button} from '../../components/Button';
 
@@ -48,11 +43,11 @@ export function CarDetail(){
 
 
   function handleSchedulling(){
-      navigation.navigate('Scheuling')
+      navigation.navigate('Scheuling',{car})
   }
 
   function handleBack(){
-    navigation.navigate('Home')
+    navigation.goBack()
   }
 
 
@@ -86,11 +81,12 @@ export function CarDetail(){
 
           <AcessoriesWraper>
             {
-              car.accessories.map(acessorie => (
-                <Acessories 
-                key={acessorie.type}
-                name={acessorie.name}
-                icon={SpeedSvg} />
+              car.accessories.map(acessoryes => (
+              <Acessories 
+                key={acessoryes.type}
+                name={acessoryes.name}
+                icon={getAcessoryIcon(acessoryes.type)} />
+
               ))
             }
           </AcessoriesWraper>
