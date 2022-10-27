@@ -128,6 +128,7 @@ export function Scheuling(){
   <Button 
   title='Confirmar'
   onPress={handleSchedullingDetail}
+  enabled={!!rentalPeriod.endFormated}
   />
   </Footer>
  </Container>

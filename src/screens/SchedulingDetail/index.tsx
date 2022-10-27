@@ -57,7 +57,7 @@ interface RentalPeriod{
 
 export function SchedulingDetail(){
   const [rentalPeriod, setRentalPeriod] = useState<RentalPeriod>()
-
+  const [loading, setLoading] = useState(false)
 
   const route = useRoute()
   const {car, dates} = route.params as Params;
@@ -72,12 +72,27 @@ export function SchedulingDetail(){
         ...schedulesByCar.data.unavailable_dates,
         ...dates,
       ]
+      
+      await api.post(`schedules_byuser`, {
+        user_id: 1,
+        car,
+        startDate: format(getPlataformDate(new Date(dates[0])), 'dd/MM/yyy'),
+        endDate: format(getPlataformDate(new Date(dates[dates.length -1])), 'dd/MM/yyy'),
+      })
 
       await api.put(`/schedules_bycars/${car.id}`, {
         id: car.id,
         unavailable_dates: unavailable_dates,
-      }).then(response => navigation.navigate('SchedulingComplete'))
-      .catch(()=> Alert.alert('Náo foi possivel finalizar o aluguel!'))
+      }).then(response => {
+        setLoading(true)
+        navigation.navigate('SchedulingComplete')
+      
+      })
+      .catch(()=> {
+        setLoading(false)
+      Alert.alert('Náo foi possivel finalizar o aluguel!')
+      
+   })
 
 
 
@@ -177,6 +192,8 @@ export function SchedulingDetail(){
       title="Alugar agora!"
       color={theme.colors.success}
       onPress={handleSchedullingConfirm}
+      enabled={!loading}
+      loading={loading}
       />
       </Footer>
    

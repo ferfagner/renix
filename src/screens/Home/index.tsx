@@ -13,13 +13,17 @@ import { CarDTO } from '../../dtos/carDTO';
 
 import { Load } from '../../components/Load';
 
+import { Ionicons } from '@expo/vector-icons';
+
 import {
   Container,
   Header,
   TotalCars,
   HeaderContent,
-  CarList
+  CarList,
+  MyCarsButton,
 } from './styles'
+import { useTheme } from 'styled-components';
 
 
 
@@ -27,11 +31,14 @@ export function Home(){
 
     const [cars, setCarts] = useState<CarDTO[]>([]);
     const [load, setLoad] = useState(true);
-
+    const theme = useTheme()
     const navigation = useNavigation<NavigationProp<ParamListBase>>()
 
     function handleCarDetails(car: CarDTO){
         navigation.navigate('CarDetail', {car})
+    }
+    function handleOpenMycars(){
+        navigation.navigate('MyCars')
     }
 
    
@@ -53,7 +60,7 @@ export function Home(){
 
 
         fatchCars();
-    })
+    },[])
 
     
 
@@ -89,7 +96,15 @@ export function Home(){
     />  
     }
      
-
+    <MyCarsButton
+    onPress={handleOpenMycars}
+    >
+    <Ionicons 
+    name="ios-car-sport" 
+    size={32} 
+    color={theme.colors.shape} 
+    />       
+    </MyCarsButton>
  </Container>
 )
 
