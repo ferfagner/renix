@@ -23,6 +23,7 @@ import {api} from '../../services/api';
 import { CarDTO } from '../../dtos/carDTO';
 
 import { Load } from '../../components/Load';
+import { LoadAnimation } from '../../components/LoadAnimation';
 
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'styled-components';
@@ -133,7 +134,7 @@ export function Home(){
         </HeaderContent>
     </Header>
     {
-    load ? Load : 
+    load ? <LoadAnimation/> : 
     <CarList 
     data={cars}
     keyExtractor={item => item.id}

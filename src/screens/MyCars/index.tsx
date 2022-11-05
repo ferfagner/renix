@@ -24,6 +24,7 @@ import {
 import { FlatList } from 'react-native-gesture-handler';
 import { AntDesign } from '@expo/vector-icons'
 import {Load} from '../../components/Load'
+import {LoadAnimation} from '../../components/LoadAnimation'
 
 
 interface CarProps {
@@ -50,7 +51,7 @@ export function MyCars(){
               const response =  await api.get('/schedules_byuser?user_id=1')
                 setCars(response.data)
 
-                console.log(response.data)
+              
             } catch (error) {
                 console.log(error)
             }finally{
@@ -87,7 +88,7 @@ export function MyCars(){
 
    
   </Header>
-  { loading ? <Load/> :
+  { loading ? <LoadAnimation/> :
     <Content>
         <Apontment>
             <ApointmentTitle>Agendamentos Feitos</ApointmentTitle>
