@@ -14,7 +14,7 @@ import { useTheme } from 'styled-components';
 import { Button } from '../../components/Button';
 
 import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/native';
-
+import {useAuth} from '../../hook/auth'
 import {
   Container,
   Header,
@@ -34,6 +34,8 @@ export function SignIn(){
   const theme = useTheme()
   const navigate = useNavigation<NavigationProp<ParamListBase>>()
 
+  const {signIn} = useAuth()
+
   function handleNewAccout(){
     navigate.navigate('FirstStep')
   }
@@ -49,7 +51,10 @@ export function SignIn(){
   
       await schema.validate({email, password})
 
-      //Fazer Login
+      signIn({
+        email,
+        password
+      })
     } catch (error) {
       if(error instanceof Yup.ValidationError){
          Alert.alert('Opa', error.message)

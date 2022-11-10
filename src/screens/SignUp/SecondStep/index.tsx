@@ -6,6 +6,7 @@ import { BackButon } from '../../../components/BackButon';
 import { Bullet } from '../../../components/Bullet';
 import { Button } from '../../../components/Button';
 import { PasswordInput } from '../../../components/PasswordInput';
+import { api } from '../../../services/api';
 
 import {
   Container,
@@ -29,6 +30,7 @@ interface Params{
 export function SecondStep(){
     const navigate = useNavigation<NavigationProp<ParamListBase>>()
     const route = useRoute()
+
     const {user} = route.params as Params
 
     const theme = useTheme()
@@ -44,7 +46,7 @@ export function SecondStep(){
         navigate.navigate('SecondStep')
     }
 
-    function handleRegister(){
+    async function handleRegister(){
        if(!senha || !confSenha){
         return Alert.alert('Informe a senha e a confirmação')
        }
@@ -52,12 +54,22 @@ export function SecondStep(){
         return Alert.alert('As senhas não são iguais!')
        }
 
-       //Enviar para Api e cadastrar e chamar a tela de conf cadastro
-       navigate.navigate('Confirmation', {
-        title: 'Conta Criada',
-        mensage: `Agora é só fazer \n login e aproveitar.`,
-        nextScreenRoute: 'SignIn'
-    })
+      
+        await api.post('/users', {
+            name: user.name,
+            email: user.email,
+            driver_license: user.driveLicence,
+            password: senha
+        }).then(()=> {
+            navigate.navigate('Confirmation', {
+                title: 'Conta Criada',
+                mensage: `Agora é só fazer \n login e aproveitar.`,
+                nextScreenRoute: 'SignIn'
+            })
+
+        }).catch(() => Alert.alert('Opa', 'Não foi possivel Cadastrar'));
+      
+       
     }
 
  return(
