@@ -10,10 +10,25 @@ import {
 } from './styles'
 
 interface inputProrps extends TextInputProps{
-    iconName: React.ComponentProps<typeof Feather>['name']
+    iconName: React.ComponentProps<typeof Feather>['name'];
+    value?: string
 }
 
-export function PasswordInput({iconName, ...rest}: inputProrps){
+export function PasswordInput({iconName,value, ...rest}: inputProrps){
+
+  const [focus, setFocus] = useState(false)
+  const [filled, setFilled] = useState(false)
+
+
+  function handleFocus(){
+      setFocus(true)
+  }
+
+  function handleBlur(){
+      setFocus(false)
+      setFilled(!!value)
+  }
+
     const theme = useTheme()
 
     const [isvisible, setIsVisible] = useState(true)
@@ -28,15 +43,21 @@ export function PasswordInput({iconName, ...rest}: inputProrps){
     <Feather
     name={iconName}
     size={24}
-    color={theme.colors.text_detail}
+    color={(focus || filled ) ? theme.colors.main: theme.colors.text_detail}
     />
     </IconContainer>
     <InputText  
     {...rest}
+    placeholderTextColor={theme.colors.text_detail}
     secureTextEntry={isvisible}
+    onFocus={handleFocus}
+    onBlur={handleBlur}
+    isfocus={focus}
     />
     <BorderlessButton onPress={handleChangePassword}>
-    <IconContainer>
+    <IconContainer
+    isfocus={focus}
+    >
     <Feather
     name={isvisible? 'eye': 'eye-off'}
     size={24}
