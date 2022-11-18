@@ -1,5 +1,5 @@
 
-import react, {useState} from 'react';
+import react, {useState, useEffect} from 'react';
 import { 
   StatusBar,
   KeyboardAvoidingView,
@@ -27,6 +27,8 @@ import { Input } from '../../components/Input';
 import { PasswordInput } from '../../components/PasswordInput';
 
 export function SignIn(){
+
+ 
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

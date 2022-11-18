@@ -12,7 +12,8 @@ install! 'cocoapods',
 target 'renix' do
   use_expo_modules!
   config = use_native_modules!
-
+  pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
+  pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
   use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
 
   # Flags change depending on the env values.

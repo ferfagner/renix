@@ -45,21 +45,31 @@ export function Home(){
 
 
     useEffect(()=>{
+        let isMounted = true;
+        
         async function fatchCars(){
 
            try {
             const response = await api.get('/cars')
-            setCarts(response.data)
+            if(isMounted){
+                setCarts(response.data)
+            }
+            
 
            } catch (error) {
             console.log(error)
            } finally{
-            setLoad(false)
+            if(isMounted){
+                setLoad(false)
+            }
+            
            }
         }
-
-
         fatchCars();
+
+        return ()=> {
+            isMounted = false;
+        }
     },[])
 
 
