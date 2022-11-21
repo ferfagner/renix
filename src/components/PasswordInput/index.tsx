@@ -53,6 +53,7 @@ export function PasswordInput({iconName,value, ...rest}: inputProrps){
     onFocus={handleFocus}
     onBlur={handleBlur}
     isfocus={focus}
+    autoCorrect={false}
     />
     <BorderlessButton onPress={handleChangePassword}>
     <IconContainer

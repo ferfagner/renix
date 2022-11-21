@@ -14,7 +14,7 @@ interface User{
     user_id: string;
     email: string;
     name: string;
-    driver_license: string;
+    drive_license: string;
     avatar: string;
     token: string;
 }
@@ -28,6 +28,8 @@ interface SingInCredential{
 interface authContexData{
     user: User;
     signIn: (credential: SingInCredential) => Promise<void>
+    signOut: ()=> Promise<void>
+    updateUser:(user: User)=> Promise<void>
 }
 
 interface authProviderProrps{
@@ -35,6 +37,8 @@ interface authProviderProrps{
 }
 
 const AuthContex = createContext<authContexData>({} as authContexData)
+
+
 
 function AuthProvider({children}: authProviderProrps){
     const [data, setData] = useState<User>({} as User)
@@ -71,10 +75,44 @@ function AuthProvider({children}: authProviderProrps){
        
     }
 
+    async function signOut() {
+        try {
+            const userCollection = database.get<modelUser>('users')
+    
+            await database.write(async () => {
+                const userSelected = userCollection.find(data.id)
+                await (await userSelected).destroyPermanently();
+            })
+
+            setData({} as User)
+        } catch (error) {
+            
+        }
+    }
+    async function updateUser(user: User){
+        try {
+            const userCollection = database.get<modelUser>('users')
+            await database.write(async () =>{
+                const userSelectet = userCollection.find(user.id)
+
+                await (await userSelectet).update((userData) => {
+                    userData.name = user.name
+                    userData.avatar= user.avatar
+                    userData.drive_license= user.drive_license
+                });
+            });
+
+            setData(user)
+
+        } catch (error) {
+            
+        }
+    }
    useEffect(()=>{
     async function loadUserData(){
         const userCollection = database.get<modelUser>('users')
         const response = await userCollection.query().fetch()
+
         
         if(response.length > 0){
             const userData = response[0]._raw as unknown as User;
@@ -89,7 +127,9 @@ function AuthProvider({children}: authProviderProrps){
     return(
         <AuthContex.Provider value={{
             user: data,
-            signIn
+            signOut,
+            signIn,
+            updateUser
         }}>
             {children}
         </AuthContex.Provider>
