@@ -1,4 +1,4 @@
-import react from 'react';
+import react, {useState, useEffect} from 'react';
 import { Acessories } from '../../components/Acessories';
 import { BackButon } from '../../components/BackButon';
 import { Slider } from '../../components/Slider';
@@ -14,7 +14,7 @@ import Animated,{
 import { getAcessoryIcon } from '../../utils/getAcessoryIcon';
 
 import {Button} from '../../components/Button';
-
+import {Car, Car as CarModel} from '../../database/model/car'
 import { useNavigation, ParamListBase, NavigationProp, useRoute } from '@react-navigation/native';
 
 import {
@@ -30,21 +30,24 @@ import {
   Period,
   About,
   AcessoriesWraper,
-  Footer
+  Footer,
+  OfflineInfo
 
 } from './styles'
 import { CarDTO } from '../../dtos/carDTO';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { StatusBar } from 'react-native';
+import { api } from '../../services/api';
+import { useNetInfo } from '@react-native-community/netinfo';
 
 interface Params {
-  car : CarDTO
+  car : CarModel
 }
 
 export function CarDetail(){
-
+  const netInfo = useNetInfo()
   const navigation = useNavigation<NavigationProp<ParamListBase>>()
-
+  const [carUpdated, setCarUpdated] = useState<CarDTO>({} as CarDTO)
   const route = useRoute()
   const {car} = route.params as Params;
   const scrollY = useSharedValue(0)
@@ -83,7 +86,19 @@ export function CarDetail(){
     navigation.goBack()
   }
 
+  useEffect(()=>{
+    async function fatchCarUpdated(){
+      const response = await api.get(`/cars/${car.id}`)
+      setCarUpdated(response.data)
 
+     
+    }
+
+    if(netInfo.isConnected === true){
+      fatchCarUpdated()
+    }
+
+  },[netInfo.isConnected])
 
  return(
 
@@ -104,8 +119,13 @@ export function CarDetail(){
        </Header>
       <CarImages>
       <Slider 
-      imagesUrl={car.photos}
+      imagesUrl={
+        !!carUpdated.photos?
+        carUpdated.photos:
+        [{id: car.thumbnail, photo: car.thumbnail}]
+      }
       />
+    
       </CarImages>
       </Animated.View>
       <Animated.ScrollView
@@ -124,13 +144,19 @@ export function CarDetail(){
           </Description>
           <Rent>
            <Period>{car.period}</Period>
-          <Price>R${car.price}</Price>
+          <Price>R${ 
+          netInfo.isConnected === true ?
+          car.price :
+          '...'
+          }</Price>
           </Rent>
           </Detail>
 
-          <AcessoriesWraper>
+         { 
+         carUpdated.accessories &&
+         <AcessoriesWraper>
             {
-              car.accessories.map(acessoryes => (
+              carUpdated.accessories.map(acessoryes => (
               <Acessories 
                 key={acessoryes.type}
                 name={acessoryes.name}
@@ -138,7 +164,8 @@ export function CarDetail(){
 
               ))
             }
-          </AcessoriesWraper>
+          </AcessoriesWraper>          
+          }
           <About>
           {car.about}
           </About>
@@ -148,7 +175,14 @@ export function CarDetail(){
       <Button 
       title="Escolher Periodo do Aluguel!"
       onPress={handleSchedulling}
+      enabled={netInfo.isConnected === true}
       />
+      {
+        netInfo.isConnected === false &&
+        <OfflineInfo>
+          Conecte-se a internet para ver mais detalhes e agendar seu carrro!
+        </OfflineInfo>
+      }
       </Footer>
    
  </Container>

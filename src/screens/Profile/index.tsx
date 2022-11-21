@@ -30,6 +30,7 @@ import { useAuth } from '../../hook/auth';
 import * as ImagePicker from 'expo-image-picker';
 import { Button } from '../../components/Button';
 import * as Yup from 'yup'
+import { useNetInfo } from '@react-native-community/netinfo';
 
 export function Profile(){
     const {user, signOut, updateUser} = useAuth()
@@ -38,7 +39,7 @@ export function Profile(){
     const navigation = useNavigation<NavigationProp<ParamListBase>>()
     const [name, setName] = useState('')
     const [driveLicence, setDriveLicence] = useState('')
-
+    const netInfo = useNetInfo()
     const [avatar, setAvatar] = useState(user.avatar)
     
     
@@ -49,7 +50,12 @@ export function Profile(){
     
 
     function handleOptionChange(optionSelected: 'dataEdit'|'passwordEdit'){
-        setOption(optionSelected)
+        if(netInfo.isConnected === false && optionSelected==='passwordEdit'){
+            Alert.alert('Você está offline!','para mudar a senha conecte-se a internet')
+        }else{
+            setOption(optionSelected)
+        }
+        
     }
 
     async function handleSelectAvatar(){

@@ -30,6 +30,7 @@ interface authContexData{
     signIn: (credential: SingInCredential) => Promise<void>
     signOut: ()=> Promise<void>
     updateUser:(user: User)=> Promise<void>
+    loading: boolean
 }
 
 interface authProviderProrps{
@@ -42,7 +43,7 @@ const AuthContex = createContext<authContexData>({} as authContexData)
 
 function AuthProvider({children}: authProviderProrps){
     const [data, setData] = useState<User>({} as User)
-
+    const [loading, setLoading] = useState(true)
     async function signIn({email, password}:SingInCredential) {
 
         try {
@@ -118,7 +119,9 @@ function AuthProvider({children}: authProviderProrps){
             const userData = response[0]._raw as unknown as User;
             api.defaults.headers.common['Authorization']= `Bearer ${userData.token}`
             setData(userData)
+            setLoading(false)
         }
+       
     }
 
     loadUserData()
@@ -129,7 +132,8 @@ function AuthProvider({children}: authProviderProrps){
             user: data,
             signOut,
             signIn,
-            updateUser
+            updateUser,
+            loading
         }}>
             {children}
         </AuthContex.Provider>

@@ -7,11 +7,12 @@ import {RFValue} from 'react-native-responsive-fontsize'
 import Logo from '../../assets/logo.svg'
 import { Car } from '../../components/Car';
 
-
+import NetInfo, { useNetInfo } from '@react-native-community/netinfo';
+import {synchronize} from '@nozbe/watermelondb/sync'
+import { database } from '../../database';
 
 import {api} from '../../services/api';
-import { CarDTO } from '../../dtos/carDTO';
-
+import {Car as CarModel} from '../../database/model/car'
 import { LoadAnimation } from '../../components/LoadAnimation';
 
 import {
@@ -28,16 +29,36 @@ import {
 
 export function Home(){
 
-    const [cars, setCarts] = useState<CarDTO[]>([]);
+    const [cars, setCarts] = useState<CarModel[]>([]);
     const [load, setLoad] = useState(true);
-   
+    const netInfo = useNetInfo()
     const navigation = useNavigation<NavigationProp<ParamListBase>>()
 
 
+    async function offlineSincronize(){
+        await synchronize({
+            database,
+            pullChanges: async ({lastPulledAt}) => {
+                const response = await api
+                .get(`cars/sync/pull?lastPulledVersion=${lastPulledAt || 0}`);
+                
+                const {changes, latestVersion} = response.data;
+               
+                return {changes, timestamp: latestVersion}
+                
+            },
+            pushChanges: async({changes}) => {
+               
+                const user = changes.users;
+                
+                await api.post('/users/sync', user).catch(console.log)
 
+            }
+        });
+    }
   
 
-    function handleCarDetails(car: CarDTO){
+    function handleCarDetails(car: CarModel){
         navigation.navigate('CarDetail', {car})
     }
 
@@ -50,31 +71,35 @@ export function Home(){
         async function fatchCars(){
 
            try {
-            const response = await api.get('/cars')
-            if(isMounted){
-                setCarts(response.data)
-            }
-            
-
+           const carCollection = database.get<CarModel>('cars')
+           const cars = await carCollection.query().fetch()
+           if(isMounted){
+                setCarts(cars)
+           }
+         
            } catch (error) {
             console.log(error)
-           } finally{
-            if(isMounted){
-                setLoad(false)
-            }
-            
-           }
+            }finally{
+                if(isMounted){
+                    setLoad(false)
+                }
+            }             
+     
         }
-        fatchCars();
-
+       fatchCars();
+      
         return ()=> {
-            isMounted = false;
+         isMounted = false;
         }
     },[])
-
-
     
+    useEffect(()=>{
 
+        if(netInfo.isConnected === true){
+            offlineSincronize()
+        }
+
+    },[netInfo.isConnected])
 
  return(
 

@@ -41,6 +41,7 @@ import { format } from 'date-fns';
 import { getPlataformDate } from '../../utils/getFormatDate'
 import { api } from '../../services/api';
 import { Alert } from 'react-native';
+import { useNetInfo } from '@react-native-community/netinfo';
 
 interface Params {
   car : CarDTO;
@@ -58,31 +59,21 @@ interface RentalPeriod{
 export function SchedulingDetail(){
   const [rentalPeriod, setRentalPeriod] = useState<RentalPeriod>()
   const [loading, setLoading] = useState(false)
-
+  const netInfo = useNetInfo()
+  const [carUpdated, setCarUpdated] = useState<CarDTO>({} as CarDTO)
   const route = useRoute()
   const {car, dates} = route.params as Params;
 
   const navigation = useNavigation<NavigationProp<ParamListBase>>()
 
    async function handleSchedullingConfirm(){
-
-      const schedulesByCar = await api.get(`/schedules_bycars/${car.id}`)
-
-      const unavailable_dates = [
-        ...schedulesByCar.data.unavailable_dates,
-        ...dates,
-      ]
-      
-      await api.post(`schedules_byuser`, {
+    setLoading(true)
+      await api.post('rentals', {
         user_id: 1,
-        car,
-        startDate: format(getPlataformDate(new Date(dates[0])), 'dd/MM/yyy'),
-        endDate: format(getPlataformDate(new Date(dates[dates.length -1])), 'dd/MM/yyy'),
-      })
-
-      await api.put(`/schedules_bycars/${car.id}`, {
-        id: car.id,
-        unavailable_dates: unavailable_dates,
+        car_id: car.id,
+        start_date: new Date(dates[0]),
+        end_date: new Date(dates[dates.length -1]),
+        total: rentTotal
       }).then(response => {
         setLoading(true)
         navigation.navigate('Confirmation', {
@@ -107,7 +98,7 @@ export function SchedulingDetail(){
     }
   const theme = useTheme()
 
-  const rentTotal= Number(dates.length * car.rent.price)
+  const rentTotal= Number(dates.length * car.price)
 
   useEffect(() => { 
 
@@ -117,7 +108,22 @@ export function SchedulingDetail(){
     })
   }
 ,[])
-  console.log(rentalPeriod)
+
+useEffect(()=>{
+  async function fatchCarUpdated(){
+    const response = await api.get(`/cars/${car.id}`)
+    setCarUpdated(response.data)
+
+   
+  }
+
+  if(netInfo.isConnected === true){
+    fatchCarUpdated()
+  }
+
+},[netInfo.isConnected])
+
+
  return(
 
  <Container>
@@ -129,7 +135,11 @@ export function SchedulingDetail(){
        </Header>
       <CarImages>
       <Slider 
-      imagesUrl={car.photos}
+      imagesUrl={
+        !!carUpdated.photos?
+        carUpdated.photos:
+        [{id: car.thumbnail, photo: car.thumbnail}]
+      }
       />
       </CarImages>
 
@@ -140,14 +150,16 @@ export function SchedulingDetail(){
             <Name>{car.name}</Name>
           </Description>
           <Rent>
-           <Period>{car.rent.period}</Period>
-          <Price>R${car.rent.price}</Price>
+           <Period>{car.period}</Period>
+          <Price>R${car.price}</Price>
           </Rent>
           </Detail>
 
-          <AcessoriesWraper>
+          { 
+         carUpdated.accessories &&
+         <AcessoriesWraper>
             {
-              car.accessories.map(acessoryes => (
+              carUpdated.accessories.map(acessoryes => (
               <Acessories 
                 key={acessoryes.type}
                 name={acessoryes.name}
@@ -155,7 +167,8 @@ export function SchedulingDetail(){
 
               ))
             }
-          </AcessoriesWraper>
+          </AcessoriesWraper>          
+          }
          
 
          <RentalPeriod>
@@ -184,7 +197,7 @@ export function SchedulingDetail(){
           <RentalPrice>
             <RentalPriceLabel>Total</RentalPriceLabel>
             <RentalPriceDetail>
-              <RentalPriceQuote>{`${car.rent.price} x${dates.length} diárias`}</RentalPriceQuote>
+              <RentalPriceQuote>{`${car.price} x${dates.length} diárias`}</RentalPriceQuote>
               <RentalPriceTotal>R${rentTotal}</RentalPriceTotal>
             </RentalPriceDetail>
           </RentalPrice>
